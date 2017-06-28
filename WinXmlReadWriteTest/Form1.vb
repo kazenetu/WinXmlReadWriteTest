@@ -13,7 +13,11 @@
         dummy.Add(New KeyValuePair(Of String, String)("projA", "form3"))
 
         ' XML書き込み
-        XmlUtil.Write(dummy)
+        If XmlUtil.Write(dummy) Then
+            MessageBox.Show("書き込みが完了しました")
+        Else
+            MessageBox.Show("書き込みに失敗しました")
+        End If
     End Sub
 
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
