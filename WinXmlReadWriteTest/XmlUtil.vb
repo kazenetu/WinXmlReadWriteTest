@@ -10,37 +10,36 @@ Public Class XmlUtil
     ''' <summary>
     ''' XMLの書き込み
     ''' </summary>
+    ''' <param name="projectForms">プロジェクト・フォーム名のリスト</param>
     ''' <returns>書き込み成否</returns>
-    Public Shared Function Write() As Boolean
-        'ダミーデータ作成
-        Dim dummy As New List(Of KeyValuePair(Of String, String))
-        dummy.Add(New KeyValuePair(Of String, String)("projA", "form1"))
-        dummy.Add(New KeyValuePair(Of String, String)("projA", "form1"))
-        dummy.Add(New KeyValuePair(Of String, String)("projA", "form1"))
-        dummy.Add(New KeyValuePair(Of String, String)("projA", "form2"))
-        dummy.Add(New KeyValuePair(Of String, String)("projA", "form3"))
-        dummy.Add(New KeyValuePair(Of String, String)("projA", "form3"))
-        dummy.Add(New KeyValuePair(Of String, String)("projB", "form1"))
-        dummy.Add(New KeyValuePair(Of String, String)("projB", "form1"))
-        dummy.Add(New KeyValuePair(Of String, String)("projA", "form3"))
+    Public Shared Function Write(ByVal projectForms As List(Of KeyValuePair(Of String, String))) As Boolean
 
-        Dim q = dummy.GroupBy(Function(ByVal keyValue As KeyValuePair(Of String, String)) keyValue.Key)
+        ' projectFormsが存在しない・ゼロ件の場合は終了
+        If projectForms Is Nothing OrElse projectForms.Count <= 0 Then
+            Return False
+        End If
 
+        ' プロジェクト名でグルーピング
+        Dim q = projectForms.GroupBy(Function(ByVal keyValue As KeyValuePair(Of String, String)) keyValue.Key)
+
+        ' XML設定
         Dim settings As New XmlWriterSettings()
         settings.Indent = True
         settings.IndentChars = vbTab
         settings.Encoding = System.Text.Encoding.UTF8
 
+        ' XMLファイルを作成
         Using writer As XmlWriter = XmlWriter.Create(FILE_NAME, settings)
             Dim controlIds As New Dictionary(Of String, Integer)
 
             writer.WriteStartElement("root")
-            For Each key In q
-                ' projごとに作成
-                writer.WriteStartElement(key.[Key])
+            For Each projectName In q
+                ' プロジェクト名ごとに作成
+                writer.WriteStartElement(projectName.[Key])
 
-                For Each keyValue In key
-
+                ' 画面ごとにループ
+                For Each keyValue In projectName
+                    ' IDをユニークにするため連番を付与する
                     Dim baseCountrolId As String = keyValue.Key & keyValue.Value
                     If Not controlIds.Keys.Contains(baseCountrolId) Then
                         controlIds.Add(baseCountrolId, 0)
@@ -48,6 +47,7 @@ Public Class XmlUtil
                     Dim controlId = String.Format("{0}_{1:000000}", baseCountrolId, controlIds(baseCountrolId))
                     controlIds(baseCountrolId) = controlIds(baseCountrolId) + 1
 
+                    ' XMLに書き出し
                     writer.WriteComment("コメント：" & controlId)
                     writer.WriteStartElement("item")
                     writer.WriteElementString("key", controlId)
@@ -67,7 +67,7 @@ Public Class XmlUtil
     ''' <summary>
     ''' XMLのitemを文字列に変換して返す
     ''' </summary>
-    ''' <returns>文字列データ</returns>
+    ''' <returns>文字列に変換したitemのリスト</returns>
     Public Shared Function Read() As String
         Dim keyValues As New Dictionary(Of String, String)
 
