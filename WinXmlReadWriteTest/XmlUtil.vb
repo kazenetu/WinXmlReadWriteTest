@@ -67,7 +67,7 @@ Public Class XmlUtil
     ''' <summary>
     ''' XMLのitemを文字列に変換して返す
     ''' </summary>
-    ''' <returns></returns>
+    ''' <returns>文字列データ</returns>
     Public Shared Function Read() As String
         Dim keyValues As New Dictionary(Of String, String)
 
