@@ -1,9 +1,16 @@
 ﻿Imports System.Text
 Imports System.Xml
 
+''' <summary>
+''' XML制御ユーティリティ
+''' </summary>
 Public Class XmlUtil
     Private Const FILE_NAME As String = "test.xml"
 
+    ''' <summary>
+    ''' XMLの書き込み
+    ''' </summary>
+    ''' <returns>書き込み成否</returns>
     Public Shared Function Write() As Boolean
         'ダミーデータ作成
         Dim dummy As New List(Of KeyValuePair(Of String, String))
@@ -24,7 +31,6 @@ Public Class XmlUtil
         settings.IndentChars = vbTab
         settings.Encoding = System.Text.Encoding.UTF8
 
-        'Using writer As XmlWriter = XmlWriter.Create(System.Console.Out, settings)
         Using writer As XmlWriter = XmlWriter.Create(FILE_NAME, settings)
             Dim controlIds As New Dictionary(Of String, Integer)
 
@@ -58,15 +64,22 @@ Public Class XmlUtil
         Return True
     End Function
 
+    ''' <summary>
+    ''' XMLのitemを文字列に変換して返す
+    ''' </summary>
+    ''' <returns></returns>
     Public Shared Function Read() As String
         Dim keyValues As New Dictionary(Of String, String)
 
+        ' XMLファイルのitemを取得
         Dim items = XElement.Load(FILE_NAME).Descendants("item")
 
+        ' XMLデータの読み込み
         For Each item In items
             keyValues.Add(item.Elements("key").Value, item.Elements("value").Value)
         Next
 
+        '読み込んだXMLデータを文字列に変換して返す
         Dim result As New StringBuilder()
         For Each keyValue In keyValues
             result.AppendLine(keyValue.Key & vbTab & keyValue.Value)
